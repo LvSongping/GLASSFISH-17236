@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+
+<project name="rptengine" default="ear" basedir=".">
+  
+  <property environment="env"/>
+  
+  <property name="app" value="rptengine"/>
+  <property name="webmod" value="client"/>
+  <property name="ejb" value="provider"/>
+  <property name="asadmin" value="${env.GLASSFISH_HOME}/bin/asadmin.bat"/>
+  
+  <!--
+  Build the web module
+  -->
+  <target name="webmod" depends="ejb">
+    <ant
+      antfile="${webmod}/build.xml"
+      inheritAll="no"
+      inheritRefs="no"
+    />
+  </target>
+  
+  <!--
+  Build our ejbs
+  -->
+  <target name="ejb">
+    <ant
+      antfile="${ejb}/build.xml"
+      inheritAll="no"
+      inheritRefs="no"
+    />
+  </target>
+  
+  <!--
+  Target for creating the ear file
+  -->
+  <target name="ear" depends="ejb, webmod">
+    <ear
+      destfile="${app}.ear"
+      appxml="xml/application.xml"
+    >
+      <fileset file="${webmod}/${webmod}.war"/>
+      <fileset file="${ejb}/${ejb}.jar"/>
+			<fileset dir="." includes="lib/**/*.jar"/>
+    </ear>
+  </target>
+  
+  <!--
+  Deploy to Glassfish
+  -->
+  <target name="deploy" depends="ear">
+    <exec executable="${asadmin}">
+      <arg line="deploy ${app}.ear"/>
+    </exec>
+  </target>
+  
+  <!--
+  Undeploy from Glassfish
+  -->
+  <target name="undeploy">
+    <exec executable="${asadmin}">
+      <arg line="undeploy ${app}"/>
+    </exec>
+  </target>
+  
+  <!--
+  Redeploy to Glassfish
+  -->
+	<target name="redeploy" depends="ear">
+		<exec executable="${asadmin}">
+			<arg line="redeploy --name ${app} ${app}.ear"/>
+		</exec>
+	</target>
+
+  <!--
+  Clean the application files and module files
+  -->
+  <target name="clean">
+    <delete file="${app}.ear"/>
+    <ant
+      antfile="${webmod}/build.xml"
+      target="clean"
+      inheritAll="no"
+      inheritRefs="no"
+    />
+    <ant
+      antfile="${ejb}/build.xml"
+      target="clean"
+      inheritAll="no"
+      inheritRefs="no"
+    />
+  </target>
+  
+</project>
