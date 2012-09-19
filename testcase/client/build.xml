@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+
+<project name="client" default="war" basedir=".">
+  
+  <property environment="env"/>
+  
+  <property name="src.dir" value="src"/>
+  <property name="glassfish.home" value="${env.GLASSFISH_HOME}"/>
+  <property name="module" value="client"/>
+	<property name="ejb.dir" value="../provider"/>
+  
+  <path id="cp">
+    <pathelement location="."/>
+		<pathelement location="${glassfish.home}/lib/javaee.jar"/>
+		<fileset dir="../provider" includes="provider.jar"/>
+  </path>
+  
+	<!--
+  Compile the source classes and jasper reports
+  -->
+  <target name="compile">
+    <javac
+      srcdir="${src.dir}"
+      classpathref="cp"
+      debug="yes"
+      fork="yes"
+			listfiles="yes"
+      includeantruntime="no"
+    >
+			<compilerarg value="-Xlint"/>
+		</javac>
+  </target>
+  
+  <!--
+  Create the war
+  -->
+  <target name="war" depends="compile">
+    <war
+      destfile="${module}.war"
+      webxml="xml/web.xml"
+    >
+			<fileset dir="." includes="jsf/**"/>
+      <classes dir="${src.dir}" includes="**/*.class"/>
+    </war>
+  </target>
+  
+  <!--
+  Clean
+  -->
+  <target name="clean">
+    <delete dir="${src.dir}" includes="**/*.class"/>
+    <delete file="${module}.war"/>
+  </target>
+  
+</project>

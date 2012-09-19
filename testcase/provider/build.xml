@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+
+<project name="provider" default="jar" basedir=".">
+  
+  <property environment="env"/>
+  
+  <property name="src.dir" value="src"/>
+  <property name="glassfish.home" value="${env.GLASSFISH_HOME}"/>
+  <property name="module" value="provider"/>
+  
+  <path id="cp">
+    <pathelement location="."/>
+		<fileset dir="../lib" includes="**/*.jar"/>
+    <pathelement location="${glassfish.home}/lib/javaee.jar"/>
+  </path>
+  
+	<!--
+  Compile the source classes
+  -->
+  <target name="compile">
+    <javac
+      srcdir="${src.dir}"
+      classpathref="cp"
+      debug="yes"
+      fork="yes"
+			listfiles="yes"
+      includeantruntime="no"
+    >
+			<compilerarg value="-Xlint"/>
+		</javac>
+  </target>
+  
+  <!--
+  Create the jar
+  -->
+  <target name="jar" depends="compile">
+    <jar
+      destfile="${module}.jar"
+    >
+			<manifest>
+				<attribute name="Class-Path" value="lib"/>
+			</manifest>
+			<metainf dir="xml" includes="ejb-jar.xml"/>
+      <fileset dir="${src.dir}" includes="**/*.class"/>
+    </jar>
+  </target>
+  
+  <!--
+  Clean
+  -->
+  <target name="clean">
+    <delete dir="${src.dir}" includes="**/*.class"/>
+    <delete file="${module}.jar"/>
+  </target>
+  
+</project>
